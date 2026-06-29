@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Novum</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Roboto+Mono:wght@400;500&amp;display=swap');
+        
+        body {
+            font-family: 'Inter', system_ui, sans-serif;
+        }
+        
+        .mono {
+            font-family: 'Roboto Mono', ui-monospace, monospace;
+        }
+
+        .novum-bg {
+            background-color: #0a0a0a;
+        }
+
+        .panel {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .bottom-nav button {
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .bottom-nav button.active {
+            color: #3b82f6;
+            font-weight: 600;
+        }
+
+        .contact-item, .group-item {
+            transition: background-color 0.1s ease, transform 0.1s ease;
+        }
+        
+        .contact-item:hover, .group-item:hover {
+            background-color: #1a1a1a;
+            transform: translateX(2px);
+        }
+        
+        .contact-item.active {
+            background-color: #1f1f1f;
+        }
+
+        .message-bubble {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .modal {
+            animation: modalEnter 0.2s cubic-bezier(0.32, 0.72, 0, 1);
+        }
+
+        @keyframes modalEnter {
+            from {
+                opacity: 0;
+                transform: scale(0.96) translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .role-badge {
+            font-size: 10px;
+            padding: 1px 8px;
+            border-radius: 9999px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-icon {
+            transition: transform 0.2s ease;
+        }
+        
+        .bottom-nav button:hover .nav-icon {
+            transform: translateY(-1px);
+        }
+
+        #messages, #group-messages {
+            scrollbar-width: thin;
+            scrollbar-color: #333 #0a0a0a;
+        }
+    </style>
+</head>
+<body class="bg-zinc-950 text-zinc-200 novum-bg">
+    <!-- AUTH SCREEN -->
+    <div id="auth-screen" class="min-h-screen flex items-center justify-center p-4">
+        <div class="w-full max-w-md">
+            <div class="flex justify-center mb-8">
+                <div class="flex items-center gap-x-3">
+                    <div class="w-11 h-11 bg-blue-600 rounded-2xl flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2v-6a2 2 0 012-2h8z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-4xl font-semibold tracking-tighter">Novum</h1>
+                        <p class="text-xs text-zinc-500 -mt-1">Мессенджер нового поколения</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex bg-zinc-900 rounded-3xl p-1 mb-6">
+                <button onclick="switchAuthTab('login')" id="tab-login"
+                        class="flex-1 py-2.5 text-sm font-medium rounded-3xl bg-zinc-800 text-white transition-all">
+                    Войти
+                </button>
+                <button onclick="switchAuthTab('register')" id="tab-register"
+                        class="flex-1 py-2.5 text-sm font-medium rounded-3xl text-zinc-400 hover:text-zinc-200 transition-all">
+                    Регистрация
+                </button>
+            </div>
+
+            <div id="login-form">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-medium text-zinc-400 mb-1.5 ml-1">Имя пользователя</label>
+                        <input id="login-username" type="text" class="w-full bg-zinc-900 border border-zinc-800 focus:border-zinc-700 rounded-2xl px-4 py-3 text-sm placeholder:text-zinc-500 focus:outline-none" placeholder="ivan_ivanov">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-zinc-400 mb-1.5 ml-1">Пароль</label>
+                        <input id="login-password" type="password" class="w-full bg-zinc-900 border border-zinc-800 focus:border-zinc-700 rounded-2xl px-4 py-3 text-sm placeholder:text-zinc-500 focus:outline-none" placeholder="••••••••">
+                    </div>
+                    <button onclick="handleLogin()" class="w-full bg-blue-600 hover:bg-blue-500 active:bg-blue-700 transition-all text-white font-semibold py-3.5 rounded-2xl text-sm mt-2">
+                        Войти
+                    </button>
+                </div>
+            </div>
+
+            <div id="register-form" class="hidden">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-medium text-zinc-400 mb-1.5 ml-1">Имя пользователя</label>
+                        <input id="reg-username" type="text" class="w-full bg-zinc-900 border border-zinc-800 focus:border-zinc-700 rounded-2xl px-4 py-3 text-sm placeholder:text-zinc-500 focus:outline-none" placeholder="ivan_ivanov">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-zinc-400 mb-1.5 ml-1">Пароль</label>
+                        <input id="reg-password" type="password" class="w-full bg-zinc-900 border border-zinc-800 focus:border-zinc-700 rounded-2xl px-4 py-3 text-sm placeholder:text-zinc-500 focus:outline-none" placeholder="••••••••">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-zinc-400 mb-1.5 ml-1">Повторите пароль</label>
+                        <input id="reg-password2" type="password" class="w-full bg-zinc-900 border border-zinc-800 focus:border-zinc-700 rounded-2xl px-4 py-3 text-sm placeholder:text-zinc-500 focus:outline-none" placeholder="••••••••">
+                    </div>
+                    <button onclick="handleRegister()" class="w-full bg-blue-600 hover:bg-blue-500 active:bg-blue-700 transition-all text-white font-semibold py-3.5 rounded-2xl text-sm mt-2">
+                        Зарегистрироваться
+                    </button>
+                </div>
+            </div>
+
+            <div class="mt-6 text-center">
+                <button onclick="showAdminLoginModal()" class="text-xs text-zinc-500 hover:text-zinc-400 underline transition-colors">
+                    Войти в панель администратора
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MESSENGER SCREEN -->
+    <div id="messenger-screen" class="hidden min-h-screen flex flex-col">
+        <!-- Top Bar -->
+        <div class="h-14 bg-zinc-900 border-b border-zinc-800 flex items-center justify-between px-5 flex-shrink-0">
+            <div class="flex items-center gap-x-3">
+                <div class="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2v-6a2 2 0 012-2h8z" />
+                    </svg>
+                </div>
+                <div class="font-semibold text-xl tracking-tight">Novum</div>
+            </div>
+            
+            <div class="flex items-center gap-x-2 text-sm">
+                <div id="top-user-info" class="flex items-center gap-x-2 px-3 py-1 bg-zinc-800 rounded-2xl text-xs">
+                    <div id="top-avatar" class="w-5 h-5 rounded-xl bg-blue-600 flex items-center justify-center text-[10px] font-bold text-white"></div>
+                    <span id="top-username" class="font-medium"></span>
+                </div>
+                <button onclick="logout()" class="text-xs px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 rounded-2xl transition-colors text-zinc-400">Выйти</button>
+            </div>
+        </div>
+
+        <!-- TAB PANELS -->
+        <div class="flex-1 overflow-hidden relative">
+            
+            <!-- CHATS PANEL -->
+            <div id="chats-panel" class="tab-panel absolute inset-0 flex h-full">
+                <div class="w-80 bg-zinc-900 border-r border-zinc-800 flex flex-col">
+                    <div class="px-4 py-3 border-b border-zinc-800">
+                        <div class="font-semibold text-lg">Чаты</div>
+                    </div>
+                    
+                    <div class="px-3 pt-3">
+                        <input id="search-contacts" type="text" placeholder="Поиск..." class="w-full bg-zinc-800 border border-zinc-700 focus:border-zinc-600 rounded-2xl px-4 py-2 text-sm placeholder:text-zinc-500 focus:outline-none">
+                    </div>
+                    
+                    <div id="contacts-list" class="flex-1 overflow-auto p-2 space-y-1"></div>
+                </div>
+                
+                <div class="flex-1 flex flex-col min-w-0">
+                    <div id="chat-header" class="h-14 bg-zinc-900 border-b border-zinc-800 flex items-center px-5 flex-shrink-0"></div>
+                    <div id="messages" class="flex-1 overflow-auto p-5 bg-zinc-950"></div>
+                    <div class="p-4 bg-zinc-900 border-t border-zinc-800 flex-shrink-0">
+                        <div class="flex gap-2 max-w-3xl mx-auto">
+                            <input id="message-input" type="text" class="flex-1 bg-zinc-800 border border-zinc-700 focus:border-zinc-600 rounded-3xl px-5 py-3 text-sm placeholder:text-zinc-400 focus:outline-none" placeholder="Напишите сообщение..." onkeypress="if(event.key==='Enter') sendMessage()">
+                            <button onclick="sendMessage()" class="bg-blue-600 hover:bg-blue-500 active:bg-blue-700 w-11 h-11 flex items-center justify-center rounded-3xl flex-shrink-0 transition-all">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GROUPS PANEL -->
+            <div id="groups-panel" class="tab-panel hidden absolute inset-0 flex h-full">
+                <div class="w-80 bg-zinc-900 border-r border-zinc-800 flex flex-col">
+                    <div class="px-4 py-3 border-b border-zinc-800 flex items-center justify-between">
+                        <div class="font-semibold text-lg">Группы</div>
+                        <button onclick="showCreateGroupModal()" class="text-xs px-3 py-1.5 bg-blue-600 hover:bg-blue-500 rounded-2xl transition-all text-white">+ Создать</button>
+                    </div>
+                    <div id="groups-list" class="flex-1 overflow-auto p-2 space-y-1"></div>
+                </div>
+                
+                <div class="flex-1 flex flex-col min-w-0 bg-zinc-950">
+                    <div id="group-header" class="h-14 bg-zinc-900 border-b border-zinc-800 flex items-center px-5 flex-shrink-0 text-sm text-zinc-400">
+                        Выберите группу слева
+                    </div>
+                    <div id="group-detail" class="flex-1 flex items-center justify-center text-zinc-500 text-sm">
+                        Здесь будет чат выбранной группы
+                    </div>
+                </div>
+            </div>
+
+            <!-- PROFILE PANEL -->
+            <div id="profile-panel" class="tab-panel hidden absolute inset-0 p-8 overflow-auto">
+                <div class="max-w-md mx-auto">
+                    <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
+                        <div class="flex items-center gap-x-4 mb-8">
+                            <div id="profile-avatar" class="w-16 h-16 rounded-2xl bg-blue-600 flex items-center justify-center text-white text-3xl font-bold flex-shrink-0"></div>
+                            <div class="flex-1 min-w-0">
+                                <div id="profile-username" class="text-2xl font-semibold tracking-tight"></div>
+                                <div id="profile-role" class="mt-1"></div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-6">
+                            <div>
+                                <div class="text-xs text-zinc-400 mb-2">Дата регистрации</div>
+                                <div id="profile-created" class="text-sm text-zinc-300 mono"></div>
+                            </div>
+
+                            <!-- Promo Code -->
+                            <div class="pt-4 border-t border-zinc-800">
+                                <div class="text-xs text-zinc-400 mb-2">Получить роль через промокод</div>
+                                <div class="flex gap-2">
+                                    <input id="promo-input" type="text" placeholder="NOVUM-XXXXXX" class="flex-1 bg-zinc-800 border border-zinc-700 focus:border-zinc-600 rounded-2xl px-4 py-2.5 text-sm placeholder:text-zinc-500 focus:outline-none mono">
+                                    <button onclick="activatePromo()" class="px-5 bg-zinc-700 hover:bg-zinc-600 active:bg-zinc-500 rounded-2xl text-sm font-medium transition-all">Активировать</button>
+                                </div>
+                            </div>
+
+                            <div class="pt-4 border-t border-zinc-800 flex flex-col gap-y-3">
+                                <button onclick="showChangePasswordModal(false)" class="w-full py-3 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm font-medium transition-all">Сменить пароль</button>
+                                
+                                <div id="admin-tools-btn" class="hidden">
+                                    <button onclick="showAdminPanel()" class="w-full py-3 bg-amber-600 hover:bg-amber-500 active:bg-amber-700 rounded-2xl text-sm font-semibold transition-all text-white">Открыть панель администратора</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BOTTOM NAV -->
+        <div class="bottom-nav h-16 bg-zinc-900 border-t border-zinc-800 flex items-center justify-around px-2 flex-shrink-0 text-xs">
+            <button onclick="switchTab('chats')" id="nav-chats" class="flex flex-col items-center justify-center flex-1 py-1 text-zinc-400 active:text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mb-0.5 nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+                <span>Чаты</span>
+            </button>
+            
+            <button onclick="switchTab('groups')" id="nav-groups" class="flex flex-col items-center justify-center flex-1 py-1 text-zinc-400 active:text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mb-0.5 nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 01-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 01-2 2 2 2 0 01-2-2 2 2 0 012-2 2 2 0 012 2z" />
+                </svg>
+                <span>Группы</span>
+            </button>
+            
+            <button onclick="switchTab('profile')" id="nav-profile" class="flex flex-col items-center justify-center flex-1 py-1 text-zinc-400 active:text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mb-0.5 nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                <span>Профиль</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- ADMIN LOGIN MODAL -->
+    <div id="admin-login-modal" onclick="if (event.target.id === 'admin-login-modal') hideAdminLoginModal()" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+        <div onclick="event.stopImmediatePropagation()" class="bg-zinc-900 border border-zinc-700 rounded-3xl p-8 w-full max-w-sm modal">
+            <div class="text-center mb-6">
+                <div class="text-amber-400 text-sm font-semibold tracking-widest">ПАНЕЛЬ АДМИНИСТРАТОРА</div>
+                <div class="text-xl font-semibold mt-1">Вход для генерального администратора</div>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="text-xs text-zinc-400">Имя пользователя</label>
+                    <input id="admin-username" value="Astronaftik" class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-4 py-3 text-sm mt-1" readonly>
+                </div>
+                <div>
+                    <label class="text-xs text-zinc-400">Пароль</label>
+                    <input id="admin-password" type="password" value="admin123" class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-4 py-3 text-sm mt-1">
+                </div>
+            </div>
+            
+            <div class="flex gap-3 mt-6">
+                <button onclick="hideAdminLoginModal()" class="flex-1 py-3 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-all">Отмена</button>
+                <button onclick="handleAdminLogin()" class="flex-1 py-3 bg-amber-600 hover:bg-amber-500 rounded-2xl text-sm font-semibold transition-all">Войти</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADMIN PANEL MODAL -->
+    <div id="admin-panel-modal" onclick="if (event.target.id === 'admin-panel-modal') hideAdminPanel()" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+        <div onclick="event.stopImmediatePropagation()" class="bg-zinc-900 border border-zinc-700 rounded-3xl w-full max-w-4xl max-h-[85vh] overflow-hidden modal flex flex-col">
+            <div class="px-6 py-4 border-b border-zinc-800 flex items-center justify-between">
+                <div>
+                    <div class="font-semibold text-xl">Панель генерального администратора</div>
+                    <div class="text-xs text-amber-400">Неограниченные права • Novum</div>
+                </div>
+                <button onclick="hideAdminPanel()" class="text-zinc-400 hover:text-white px-3 py-1">Закрыть</button>
+            </div>
+            
+            <div class="flex-1 overflow-auto p-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Promo Generator -->
+                <div class="bg-zinc-800 rounded-2xl p-5">
+                    <div class="font-semibold mb-4 flex items-center gap-x-2">
+                        <span>Генератор промокодов</span>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <div>
+                            <label class="text-xs text-zinc-400">Роль для выдачи</label>
+                            <select id="promo-role-select" class="w-full bg-zinc-900 border border-zinc-700 rounded-2xl px-4 py-2.5 text-sm mt-1">
+                                <option value="moderator">Модератор</option>
+                                <option value="admin">Администратор</option>
+                            </select>
+                        </div>
+                        <button onclick="generatePromoCode()" class="w-full py-3 bg-blue-600 hover:bg-blue-500 rounded-2xl text-sm font-semibold transition-all">Сгенерировать промокод</button>
+                        
+                        <div id="generated-promo-result" class="hidden text-center py-3 bg-zinc-900 rounded-2xl">
+                            <div class="text-xs text-zinc-400">Новый промокод</div>
+                            <div id="generated-code" class="font-mono text-xl font-semibold text-emerald-400 mt-1"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Promos -->
+                <div class="bg-zinc-800 rounded-2xl p-5">
+                    <div class="font-semibold mb-4">Активные промокоды</div>
+                    <div id="promos-list" class="space-y-2 text-sm max-h-64 overflow-auto"></div>
+                </div>
+
+                <!-- Users Management -->
+                <div class="bg-zinc-800 rounded-2xl p-5 lg:col-span-2">
+                    <div class="font-semibold mb-4">Управление пользователями</div>
+                    <div id="users-management-list" class="space-y-2 text-sm"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div id="change-password-modal" onclick="if (event.target.id === 'change-password-modal') hideChangePasswordModal()" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+        <div onclick="event.stopImmediatePropagation()" class="bg-zinc-900 border border-zinc-700 rounded-3xl p-8 w-full max-w-sm modal">
+            <div class="font-semibold text-xl mb-1">Смена пароля</div>
+            <div id="change-pass-subtitle" class="text-xs text-zinc-400 mb-6">Введите новый пароль</div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="text-xs text-zinc-400">Новый пароль</label>
+                    <input id="new-password" type="password" class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-4 py-3 text-sm mt-1">
+                </div>
+                <div>
+                    <label class="text-xs text-zinc-400">Повторите новый пароль</label>
+                    <input id="new-password2" type="password" class="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-4 py-3 text-sm mt-1">
+                </div>
+            </div>
+            
+            <div class="flex gap-3 mt-6">
+                <button onclick="hideChangePasswordModal()" class="flex-1 py-3 bg-zinc-800 hover:bg-zinc-700 rounded-2xl text-sm transition-all">Отмена</button>
+                <button onclick="changePassword()" class="flex-1 py-3 bg-blue-600 hover:bg-blue-500 rounded-2xl text-sm font-semibold transition-all">Сохранить</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== КОНФИГУРАЦИЯ npoint.io (полностью бесплатно) ====================
+        // 1. Зайди на https://www.npoint.io/
+        // 2. Нажми "Create new bin"
+        // 3. Вставь в bin этот начальный код (скопируй весь текст ниже):
+        //
+        // {
+        //   "users": {},
+        //   "chats": {},
+        //   "groups": {},
+        //   "promos": {}
+        // }
+        //
+        // 4. Нажми Save
+        // 5. Скопируй появившийся URL (он выглядит так: https://api.npoint.io/abc123def456)
+        // 6. Вставь этот URL ниже вместо YOUR_NPOINT_URL
+        //
+        // Всё. Теперь данные будут храниться на npoint.io, а сайт — на GitHub Pages.
+        const NPOINT_URL = 'https://api.npoint.io/4c9a3414b8fe16023911';
+
+        // ==================== ГЛОБАЛЬНЫЕ ====================
+        let currentUser = null;
+        let currentChatUser = null;
+        let currentGroupId = null;
+        let activeTab = 'chats';
+        let appData = { users: {}, chats: {}, groups: {}, promos: {} };
+        let pollInterval = null;
+
+        function getChatKey(u1, u2) {
+            return [u1, u2].sort().join('_');
+        }
+
+        function getRoleColor(role) {
+            if (role === 'general_admin') return 'bg-red-600 text-white';
+            if (role === 'admin') return 'bg-purple-600 text-white';
+            if (role === 'moderator') return 'bg-sky-600 text-white';
+            return 'bg-zinc-600 text-white';
+        }
+
+        function getRoleName(role) {
+            if (role === 'general_admin') return 'Генеральный администратор';
+            if (role === 'admin') return 'Администратор';
+            if (role === 'moderator') return 'Модератор';
+            return 'Пользователь';
+        }
+
+        // ==================== РАБОТА С npoint.io ====================
+        async function fetchData() {
+            if (NPOINT_URL === 'YOUR_NPOINT_URL_HERE') {
+                console.error('Сначала вставь свой URL из npoint.io');
+                return { users: {}, chats: {}, groups: {}, promos: {} };
+            }
+            try {
+                const res = await fetch(NPOINT_URL);
+                if (!res.ok) return { users: {}, chats: {}, groups: {}, promos: {} };
+                const data = await res.json();
+                return data || { users: {}, chats: {}, groups: {}, promos: {} };
+            } catch (e) {
+                console.error('Ошибка загрузки из npoint.io');
+                return { users: {}, chats: {}, groups: {}, promos: {} };
+            }
+        }
+
+        async function updateData(data) {
+            if (NPOINT_URL === 'YOUR_NPOINT_URL_HERE') {
+                alert('Сначала вставь свой URL из npoint.io в код');
+                return false;
+            }
+            try {
+                const res = await fetch(NPOINT_URL, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                return res.ok;
+            } catch (e) {
+                alert('Ошибка сохранения в npoint.io');
+                return false;
+            }
+        }
+
+        async function loadAppData() {
+            appData = await fetchData();
+            if (!appData.users) appData.users = {};
+            if (!appData.chats) appData.chats = {};
+            if (!appData.groups) appData.groups = {};
+            if (!appData.promos) appData.promos = {};
+        }
+
+        async function saveAppData() {
+            return await updateData(appData);
+        }
+
+        // ==================== АВТОРИЗАЦИЯ ====================
+        async function handleLogin() {
+            const u = document.getElementById('login-username').value.trim();
+            const p = document.getElementById('login-password').value;
+            if (!u || !p) return alert('Введите данные');
+
+            const ok = await login(u, p);
+            if (ok) await showMessenger();
+        }
+
+        async function handleRegister() {
+            const u = document.getElementById('reg-username').value.trim();
+            const p = document.getElementById('reg-password').value;
+            const p2 = document.getElementById('reg-password2').value;
+            if (!u || !p || p !== p2) return alert('Проверьте данные');
+            if (u.length < 2) return alert('Имя слишком короткое');
+
+            const ok = await register(u, p);
+            if (ok) await showMessenger();
+        }
+
+        async function login(username, password) {
+            username = username.trim();
+            await loadAppData();
+
+            if (username === 'Astronaftik' && password === 'admin123') {
+                if (!appData.users[username]) {
+                    appData.users[username] = { password: 'admin123', role: 'general_admin', created: new Date().toISOString() };
+                    await saveAppData();
+                } else {
+                    appData.users[username].role = 'general_admin';
+                    await saveAppData();
+                }
+                currentUser = username;
+                localStorage.setItem('currentUser', username);
+                
+                if (appData.users[username].password === 'admin123') {
+                    setTimeout(() => showChangePasswordModal(true), 600);
+                }
+                return true;
+            }
+
+            if (appData.users[username] && appData.users[username].password === password) {
+                currentUser = username;
+                localStorage.setItem('currentUser', username);
+                return true;
+            }
+            alert('Неверные данные');
+            return false;
+        }
+
+        async function register(username, password) {
+            username = username.trim();
+            await loadAppData();
+            if (appData.users[username]) { alert('Пользователь уже существует'); return false; }
+
+            appData.users[username] = {
+                password: password,
+                role: 'user',
+                created: new Date().toISOString()
+            };
+            const ok = await saveAppData();
+            if (ok) {
+                currentUser = username;
+                localStorage.setItem('currentUser', username);
+                return true;
+            }
+            return false;
+        }
+
+        function logout() {
+            if (pollInterval) clearInterval(pollInterval);
+            localStorage.removeItem('currentUser');
+            currentUser = null;
+            currentChatUser = null;
+            currentGroupId = null;
+            document.getElementById('messenger-screen').classList.add('hidden');
+            document.getElementById('auth-screen').classList.remove('hidden');
+        }
+
+        // ==================== РОЛИ И ПРОМО ====================
+        async function activatePromo() {
+            const code = document.getElementById('promo-input').value.trim().toUpperCase();
+            if (!code) return;
+
+            await loadAppData();
+            const promo = appData.promos[code];
+            if (!promo || promo.used) {
+                alert('Промокод недействителен или уже использован');
+                return;
+            }
+
+            appData.users[currentUser].role = promo.role;
+            promo.used = true;
+            promo.usedBy = currentUser;
+            promo.usedAt = new Date().toISOString();
+
+            await saveAppData();
+            alert(`Роль "${getRoleName(promo.role)}" успешно активирована!`);
+            document.getElementById('promo-input').value = '';
+            renderProfile();
+        }
+
+        function generatePromoCode() {
+            const role = document.getElementById('promo-role-select').value;
+            const code = 'NOVUM-' + Math.random().toString(36).substring(2, 10).toUpperCase();
+
+            appData.promos[code] = {
+                role: role,
+                createdBy: currentUser,
+                createdAt: new Date().toISOString(),
+                used: false
+            };
+
+            saveAppData().then(() => {
+                document.getElementById('generated-promo-result').classList.remove('hidden');
+                document.getElementById('generated-code').textContent = code;
+                renderPromosList();
+            });
+        }
+
+        function renderPromosList() {
+            const container = document.getElementById('promos-list');
+            container.innerHTML = '';
+            const list = Object.entries(appData.promos || {});
+            if (list.length === 0) {
+                container.innerHTML = '<div class="text-xs text-zinc-500">Промокоды ещё не создавались</div>';
+                return;
+            }
+            list.forEach(([code, p]) => {
+                const div = document.createElement('div');
+                div.className = 'flex items-center justify-between bg-zinc-900 px-3 py-2 rounded-2xl text-xs';
+                div.innerHTML = `
+                    <div class="font-mono">${code} <span class="text-zinc-400">→ ${getRoleName(p.role)}</span></div>
+                    <div class="flex items-center gap-x-2">
+                        ${p.used ? '<span class="text-emerald-400">Использован</span>' : '<button class="text-red-400 hover:text-red-300" onclick="revokePromo(\'' + code + '\')">Отозвать</button>'}
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        async function revokePromo(code) {
+            if (!confirm('Отозвать этот промокод?')) return;
+            delete appData.promos[code];
+            await saveAppData();
+            renderPromosList();
+        }
+
+        function renderUsersManagement() {
+            const container = document.getElementById('users-management-list');
+            container.innerHTML = '';
+            Object.keys(appData.users).forEach(u => {
+                const user = appData.users[u];
+                const isSelf = u === currentUser;
+                const div = document.createElement('div');
+                div.className = 'flex items-center justify-between bg-zinc-900 px-4 py-2.5 rounded-2xl';
+                div.innerHTML = `
+                    <div class="flex items-center gap-x-3">
+                        <div class="w-7 h-7 rounded-xl bg-zinc-700 flex items-center justify-center text-xs font-bold">${u[0].toUpperCase()}</div>
+                        <div>
+                            <div class="font-medium">${u}</div>
+                            <div class="text-[10px] text-zinc-400">${getRoleName(user.role)}</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-x-2">
+                        ${!isSelf ? `
+                            <select onchange="changeUserRole('${u}', this.value)" class="bg-zinc-800 text-xs rounded-xl px-2 py-1 border border-zinc-700">
+                                <option value="user" ${user.role==='user'?'selected':''}>Пользователь</option>
+                                <option value="moderator" ${user.role==='moderator'?'selected':''}>Модератор</option>
+                                <option value="admin" ${user.role==='admin'?'selected':''}>Администратор</option>
+                                <option value="general_admin" ${user.role==='general_admin'?'selected':''}>Ген. админ</option>
+                            </select>
+                            <button onclick="deleteUser('${u}')" class="text-xs px-3 py-1 bg-red-900/60 hover:bg-red-900 rounded-xl text-red-300">Удалить</button>
+                        ` : '<span class="text-xs text-zinc-500">Вы</span>'}
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        async function changeUserRole(username, newRole) {
+            if (!confirm(`Изменить роль пользователя ${username} на ${getRoleName(newRole)}?`)) return;
+            appData.users[username].role = newRole;
+            await saveAppData();
+            renderUsersManagement();
+        }
+
+        async function deleteUser(username) {
+            if (!confirm(`Удалить пользователя ${username}?`)) return;
+            delete appData.users[username];
+            await saveAppData();
+            renderUsersManagement();
+        }
+
+        // ==================== ГРУППЫ ====================
+        async function showCreateGroupModal() {
+            const name = prompt('Название группы:');
+            if (!name || name.trim().length < 2) return;
+
+            const id = 'g' + Date.now();
+            appData.groups[id] = {
+                id: id,
+                name: name.trim(),
+                owner: currentUser,
+                members: [currentUser],
+                created: new Date().toISOString(),
+                bannedUntil: null
+            };
+            await saveAppData();
+            renderGroupsList();
+        }
+
+        function renderGroupsList() {
+            const container = document.getElementById('groups-list');
+            container.innerHTML = '';
+
+            const groups = Object.values(appData.groups || {});
+            if (groups.length === 0) {
+                container.innerHTML = '<div class="px-4 py-8 text-center text-xs text-zinc-500">Групп пока нет. Создайте первую.</div>';
+                return;
+            }
+
+            groups.forEach(g => {
+                const isMember = g.members.includes(currentUser);
+                const isBanned = g.bannedUntil && new Date(g.bannedUntil) > new Date() && currentUser !== g.owner && appData.users[currentUser].role !== 'general_admin';
+                
+                const div = document.createElement('div');
+                div.className = `group-item px-3 py-3 rounded-2xl cursor-pointer border border-transparent ${isBanned ? 'opacity-50' : ''}`;
+                div.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <div class="font-semibold">${g.name}</div>
+                            <div class="text-xs text-zinc-400">${g.members.length} участник(а) • ${g.owner}</div>
+                        </div>
+                        ${isBanned ? '<div class="text-xs text-red-400">Забанена</div>' : ''}
+                    </div>
+                `;
+                if (!isBanned) {
+                    div.onclick = () => openGroupChat(g.id);
+                }
+                container.appendChild(div);
+            });
+        }
+
+        function openGroupChat(groupId) {
+            currentGroupId = groupId;
+            const g = appData.groups[groupId];
+            if (!g) return;
+
+            const isBanned = g.bannedUntil && new Date(g.bannedUntil) > new Date() && currentUser !== g.owner && appData.users[currentUser].role !== 'general_admin';
+            if (isBanned) {
+                alert('Группа забанена');
+                return;
+            }
+
+            const header = document.getElementById('group-header');
+            header.innerHTML = `
+                <div class="flex items-center justify-between w-full">
+                    <div>
+                        <span class="font-semibold">${g.name}</span>
+                        <span class="text-xs text-zinc-400 ml-2">${g.members.length} участников</span>
+                    </div>
+                    <button onclick="closeGroupChat()" class="text-xs px-3 py-1 bg-zinc-800 rounded-2xl">Закрыть чат</button>
+                </div>
+            `;
+
+            const detail = document.getElementById('group-detail');
+            detail.innerHTML = `
+                <div class="w-full h-full flex flex-col">
+                    <div id="group-messages" class="flex-1 overflow-auto p-5 text-sm"></div>
+                    <div class="p-4 border-t border-zinc-800">
+                        <div class="flex gap-2">
+                            <input id="group-message-input" type="text" class="flex-1 bg-zinc-800 border border-zinc-700 rounded-3xl px-5 py-3 text-sm" placeholder="Сообщение в группу..." onkeypress="if(event.key==='Enter') sendGroupMessage()">
+                            <button onclick="sendGroupMessage()" class="bg-blue-600 w-11 h-11 flex items-center justify-center rounded-3xl">→</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            renderGroupMessages(groupId);
+        }
+
+        function closeGroupChat() {
+            currentGroupId = null;
+            document.getElementById('group-header').innerHTML = 'Выберите группу слева';
+            document.getElementById('group-detail').innerHTML = '<div class="flex-1 flex items-center justify-center text-zinc-500 text-sm">Здесь будет чат выбранной группы</div>';
+        }
+
+        function renderGroupMessages(groupId) {
+            const container = document.getElementById('group-messages');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const key = `group_${groupId}`;
+            const msgs = (appData.chats[key] || []).slice().sort((a,b) => new Date(a.time) - new Date(b.time));
+
+            if (msgs.length === 0) {
+                container.innerHTML = '<div class="text-center text-xs text-zinc-500 mt-10">Сообщений пока нет</div>';
+                return;
+            }
+
+            msgs.forEach(m => {
+                const isSelf = m.from === currentUser;
+                const div = document.createElement('div');
+                div.className = `flex mb-2 ${isSelf ? 'justify-end' : ''}`;
+                div.innerHTML = `
+                    <div class="max-w-[70%] px-4 py-2 rounded-3xl text-sm ${isSelf ? 'bg-blue-600 text-white' : 'bg-zinc-800'}">
+                        <div class="text-xs opacity-60 mb-0.5">${m.from}</div>
+                        <div>${m.text}</div>
+                        <div class="text-right text-xs opacity-50 mt-1">${new Date(m.time).toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'})}</div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+            container.scrollTop = container.scrollHeight;
+        }
+
+        async function sendGroupMessage() {
+            if (!currentGroupId) return;
+            const input = document.getElementById('group-message-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const key = `group_${currentGroupId}`;
+            if (!appData.chats[key]) appData.chats[key] = [];
+            appData.chats[key].push({
+                from: currentUser,
+                text: text,
+                time: new Date().toISOString()
+            });
+            input.value = '';
+
+            renderGroupMessages(currentGroupId);
+            await saveAppData();
+        }
+
+        // ==================== ЧАТЫ (приватные) ====================
+        function renderContacts() {
+            const container = document.getElementById('contacts-list');
+            container.innerHTML = '';
+            const searchVal = (document.getElementById('search-contacts')?.value || '').toLowerCase().trim();
+
+            let users = Object.keys(appData.users).filter(u => u !== currentUser);
+            if (searchVal) users = users.filter(u => u.toLowerCase().includes(searchVal));
+
+            const myRole = appData.users[currentUser]?.role;
+            if (['moderator', 'admin', 'general_admin'].includes(myRole)) {
+                const staffDiv = document.createElement('div');
+                staffDiv.className = `contact-item px-3 py-3 rounded-2xl cursor-pointer flex items-center gap-x-3 ${currentChatUser === '__staff__' ? 'active' : ''} bg-zinc-800/60`;
+                staffDiv.innerHTML = `
+                    <div class="w-9 h-9 rounded-2xl bg-amber-600 flex items-center justify-center text-xs font-bold">S</div>
+                    <div class="flex-1">
+                        <div class="font-semibold">Staff Chat</div>
+                        <div class="text-xs text-amber-400">Общий чат сотрудников</div>
+                    </div>
+                `;
+                staffDiv.onclick = () => {
+                    currentChatUser = '__staff__';
+                    renderContacts();
+                    renderChatHeader();
+                    renderMessages();
+                };
+                container.appendChild(staffDiv);
+            }
+
+            users.forEach(user => {
+                const chatKey = getChatKey(currentUser, user);
+                const msgs = appData.chats[chatKey] || [];
+                const last = msgs.length > 0 ? msgs[msgs.length-1] : null;
+
+                const div = document.createElement('div');
+                div.className = `contact-item flex items-center gap-x-3 px-3 py-3 rounded-2xl cursor-pointer ${currentChatUser === user ? 'active' : ''}`;
+                div.innerHTML = `
+                    <div class="w-10 h-10 rounded-2xl bg-zinc-700 flex-shrink-0 flex items-center justify-center font-bold">${user[0].toUpperCase()}</div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex justify-between">
+                            <div class="font-semibold">${user}</div>
+                            ${last ? `<div class="text-xs text-zinc-500 mono">${new Date(last.time).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}</div>` : ''}
+                        </div>
+                        ${last ? `<div class="text-xs text-zinc-400 truncate">${last.from === currentUser ? 'Вы: ' : ''}${last.text}</div>` : ''}
+                    </div>
+                `;
+                div.onclick = () => {
+                    currentChatUser = user;
+                    currentGroupId = null;
+                    renderContacts();
+                    renderChatHeader();
+                    renderMessages();
+                };
+                container.appendChild(div);
+            });
+        }
+
+        function renderChatHeader() {
+            const header = document.getElementById('chat-header');
+            header.innerHTML = '';
+            if (!currentChatUser) {
+                header.innerHTML = `<div class="px-5 text-sm text-zinc-400">Выберите чат</div>`;
+                return;
+            }
+
+            let name = currentChatUser;
+            let roleInfo = '';
+            if (currentChatUser === '__staff__') {
+                name = 'Staff Chat';
+                roleInfo = '<span class="text-xs text-amber-400 ml-2">Общий чат</span>';
+            } else {
+                const u = appData.users[currentChatUser];
+                if (u) roleInfo = `<span class="role-badge ml-2 ${getRoleColor(u.role)}">${getRoleName(u.role)}</span>`;
+            }
+
+            header.innerHTML = `
+                <div class="flex items-center gap-x-3 px-1">
+                    <div class="w-8 h-8 rounded-2xl bg-zinc-700 flex items-center justify-center font-bold text-sm">${currentChatUser[0].toUpperCase()}</div>
+                    <div>
+                        <div class="font-semibold">${name}</div>
+                        ${roleInfo}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderMessages() {
+            const container = document.getElementById('messages');
+            container.innerHTML = '';
+            if (!currentChatUser) {
+                container.innerHTML = `<div class="h-full flex items-center justify-center text-zinc-500 text-sm">Выберите чат слева</div>`;
+                return;
+            }
+
+            let key;
+            if (currentChatUser === '__staff__') {
+                key = 'staff_chat';
+            } else {
+                key = getChatKey(currentUser, currentChatUser);
+            }
+
+            let msgs = (appData.chats[key] || []).slice();
+            msgs.sort((a,b) => new Date(a.time) - new Date(b.time));
+
+            if (msgs.length === 0) {
+                container.innerHTML = `<div class="h-full flex items-center justify-center text-xs text-zinc-500">Начните переписку</div>`;
+                return;
+            }
+
+            msgs.forEach(m => {
+                const isSelf = m.from === currentUser;
+                const div = document.createElement('div');
+                div.className = `flex mb-2 ${isSelf ? 'justify-end' : 'justify-start'}`;
+                div.innerHTML = `
+                    <div class="message-bubble max-w-[70%] px-4 py-2.5 rounded-3xl text-sm ${isSelf ? 'bg-blue-600 text-white' : 'bg-zinc-800'}">
+                        ${currentChatUser === '__staff__' && !isSelf ? `<div class="text-xs opacity-60 mb-0.5">${m.from}</div>` : ''}
+                        <div class="break-words">${m.text}</div>
+                        <div class="text-right text-xs mt-1 opacity-60">${new Date(m.time).toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'})}</div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+            container.scrollTop = container.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('message-input');
+            const text = input.value.trim();
+            if (!text || !currentChatUser) return;
+
+            let key;
+            if (currentChatUser === '__staff__') {
+                key = 'staff_chat';
+            } else {
+                key = getChatKey(currentUser, currentChatUser);
+            }
+
+            if (!appData.chats[key]) appData.chats[key] = [];
+            appData.chats[key].push({ from: currentUser, text: text, time: new Date().toISOString() });
+            input.value = '';
+
+            renderMessages();
+            await saveAppData();
+            if (activeTab === 'chats') renderContacts();
+        }
+
+        // ==================== ПРОФИЛЬ ====================
+        function renderProfile() {
+            if (!currentUser) return;
+            const user = appData.users[currentUser];
+            if (!user) return;
+
+            document.getElementById('profile-avatar').textContent = currentUser[0].toUpperCase();
+            document.getElementById('profile-username').textContent = currentUser;
+
+            const roleEl = document.getElementById('profile-role');
+            roleEl.innerHTML = `<span class="role-badge ${getRoleColor(user.role)}">${getRoleName(user.role)}</span>`;
+
+            document.getElementById('profile-created').textContent = new Date(user.created).toLocaleDateString('ru-RU', { year: 'numeric', month: 'long', day: 'numeric' });
+
+            const adminBtn = document.getElementById('admin-tools-btn');
+            if (user.role === 'general_admin') {
+                adminBtn.classList.remove('hidden');
+            } else {
+                adminBtn.classList.add('hidden');
+            }
+        }
+
+        // ==================== АДМИН ПАНЕЛЬ ====================
+        function showAdminPanel() {
+            document.getElementById('admin-panel-modal').classList.remove('hidden');
+            renderPromosList();
+            renderUsersManagement();
+        }
+
+        function hideAdminPanel() {
+            document.getElementById('admin-panel-modal').classList.add('hidden');
+        }
+
+        function showAdminLoginModal() {
+            document.getElementById('admin-login-modal').classList.remove('hidden');
+            document.getElementById('admin-password').focus();
+        }
+
+        function hideAdminLoginModal() {
+            document.getElementById('admin-login-modal').classList.add('hidden');
+        }
+
+        async function handleAdminLogin() {
+            const pass = document.getElementById('admin-password').value;
+            hideAdminLoginModal();
+            const ok = await login('Astronaftik', pass);
+            if (ok) {
+                await showMessenger();
+                setTimeout(() => {
+                    if (appData.users[currentUser].role === 'general_admin') {
+                        showAdminPanel();
+                    }
+                }, 800);
+            }
+        }
+
+        // ==================== СМЕНА ПАРОЛЯ ====================
+        let isForcedPasswordChange = false;
+
+        function showChangePasswordModal(forced = false) {
+            isForcedPasswordChange = forced;
+            document.getElementById('change-password-modal').classList.remove('hidden');
+            document.getElementById('change-pass-subtitle').textContent = forced ? 'Обязательная смена пароля при первом входе' : 'Введите новый пароль';
+            document.getElementById('new-password').focus();
+        }
+
+        function hideChangePasswordModal() {
+            if (isForcedPasswordChange) {
+                alert('Необходимо сменить пароль');
+                return;
+            }
+            document.getElementById('change-password-modal').classList.add('hidden');
+        }
+
+        async function changePassword() {
+            const p1 = document.getElementById('new-password').value;
+            const p2 = document.getElementById('new-password2').value;
+            if (!p1 || p1 !== p2) return alert('Пароли не совпадают или пустые');
+
+            await loadAppData();
+            appData.users[currentUser].password = p1;
+            await saveAppData();
+
+            hideChangePasswordModal();
+            isForcedPasswordChange = false;
+            alert('Пароль успешно изменён');
+        }
+
+        // ==================== ВКЛАДКИ ====================
+        function switchTab(tab) {
+            activeTab = tab;
+            
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+            document.getElementById(tab + '-panel').classList.remove('hidden');
+
+            document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active', 'text-white'));
+            document.getElementById('nav-' + tab).classList.add('active', 'text-white');
+
+            if (tab === 'chats') {
+                renderContacts();
+                if (currentChatUser) {
+                    renderChatHeader();
+                    renderMessages();
+                }
+            }
+            if (tab === 'groups') {
+                renderGroupsList();
+            }
+            if (tab === 'profile') {
+                renderProfile();
+            }
+        }
+
+        // ==================== ПОЛЛИНГ ====================
+        function startPolling() {
+            if (pollInterval) clearInterval(pollInterval);
+            pollInterval = setInterval(async () => {
+                if (!currentUser) return;
+                const old = JSON.stringify(appData);
+                await loadAppData();
+                if (JSON.stringify(appData) !== old) {
+                    if (activeTab === 'chats') renderContacts();
+                    if (activeTab === 'groups') renderGroupsList();
+                    if (currentChatUser && activeTab === 'chats') renderMessages();
+                    if (currentGroupId && activeTab === 'groups') renderGroupMessages(currentGroupId);
+                    if (activeTab === 'profile') renderProfile();
+                }
+            }, 4800);
+        }
+
+        // ==================== ИНИЦИАЛИЗАЦИЯ ====================
+        async function showMessenger() {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('messenger-screen').classList.remove('hidden');
+
+            await loadAppData();
+            
+            document.getElementById('top-avatar').textContent = currentUser[0].toUpperCase();
+            document.getElementById('top-username').textContent = currentUser;
+
+            const search = document.getElementById('search-contacts');
+            if (search) search.oninput = () => renderContacts();
+
+            switchTab('chats');
+            startPolling();
+        }
+
+        function init() {
+            const style = document.createElement('style');
+            style.innerHTML = `.bottom-nav button.active { color: #3b82f6; }`;
+            document.head.appendChild(style);
+
+            const saved = localStorage.getItem('currentUser');
+            if (saved) {
+                currentUser = saved;
+                loadAppData().then(() => {
+                    document.getElementById('auth-screen').classList.add('hidden');
+                    document.getElementById('messenger-screen').classList.remove('hidden');
+                    document.getElementById('top-avatar').textContent = currentUser[0].toUpperCase();
+                    document.getElementById('top-username').textContent = currentUser;
+                    
+                    const search = document.getElementById('search-contacts');
+                    if (search) search.oninput = () => renderContacts();
+
+                    switchTab('chats');
+                    startPolling();
+                });
+            } else {
+                switchAuthTab('login');
+            }
+        }
+
+        function switchAuthTab(tab) {
+            const login = document.getElementById('login-form');
+            const reg = document.getElementById('register-form');
+            const tLogin = document.getElementById('tab-login');
+            const tReg = document.getElementById('tab-register');
+
+            if (tab === 'login') {
+                login.classList.remove('hidden');
+                reg.classList.add('hidden');
+                tLogin.classList.add('bg-zinc-800', 'text-white');
+                tLogin.classList.remove('text-zinc-400');
+                tReg.classList.remove('bg-zinc-800', 'text-white');
+                tReg.classList.add('text-zinc-400');
+            } else {
+                login.classList.add('hidden');
+                reg.classList.remove('hidden');
+                tReg.classList.add('bg-zinc-800', 'text-white');
+                tReg.classList.remove('text-zinc-400');
+                tLogin.classList.remove('bg-zinc-800', 'text-white');
+                tLogin.classList.add('text-zinc-400');
+            }
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
